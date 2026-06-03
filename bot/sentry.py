@@ -16,7 +16,6 @@ class Sentry:
         self.org = org
         self.token = token or os.environ["SENTRY_ADMIN_TOKEN"]
         self.h = {"Authorization": f"Bearer {self.token}"}
-        self._member_id = None
 
     # ---- 조회 ----
     def candidate_issues(self, environment, stats_period="14d", limit=25):
@@ -38,30 +37,11 @@ class Sentry:
         r.raise_for_status()
         return r.json()
 
-    # ---- 멤버(assign 대상) 해석 ----
-    def _resolve_member(self, username_or_email):
-        """assignee 문자열 → 'user:<id>' actor 문자열로 변환."""
-        if self._member_id:
-            return self._member_id
-        url = f"{BASE}/organizations/{self.org}/members/?per_page=100"
-        r = requests.get(url, headers=self.h, timeout=30)
-        r.raise_for_status()
-        key = username_or_email.lower()
-        for m in r.json():
-            u = m.get("user") or {}
-            if key in (str(m.get("email", "")).lower(),
-                       str(u.get("username", "")).lower(),
-                       str(u.get("email", "")).lower()):
-                self._member_id = f"user:{u.get('id') or m.get('id')}"
-                return self._member_id
-        # 못 찾으면 원문 그대로 시도 (Sentry가 username 해석)
-        return username_or_email
-
     # ---- 변경 ----
     def assign(self, issue_id, assignee):
-        actor = self._resolve_member(assignee)
+        """이메일로 직접 assign (멤버목록 조회 불필요 → member:read 권한 없이 동작)."""
         r = requests.put(f"{BASE}/issues/{issue_id}/", headers=self.h,
-                         json={"assignedTo": actor}, timeout=30)
+                         json={"assignedTo": assignee}, timeout=30)
         r.raise_for_status()
         return r.json()
 

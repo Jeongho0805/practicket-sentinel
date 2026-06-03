@@ -11,7 +11,7 @@ poll:
 github:
   repo: Jeongho0805/practicket
   base_branch: stage         # PR 대상 브랜치
-  assignee: Jeongho0805      # 처리 중/완료 시 assign 대상 (Sentry-native 중복관리)
+  assignee: qkrwjdgh1721@gmail.com   # assign 대상 (이메일로 직접 — member:read 불필요)
 
 analysis:
   model: claude-sonnet-4-6
