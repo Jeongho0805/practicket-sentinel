@@ -1,0 +1,23 @@
+sentry:
+  org: practicket
+  environment: prod
+  stats_period: 14d          # 조회 범위
+  issue_limit: 25            # 한 번에 조회할 이슈 수
+
+poll:
+  per_tick: 1                # 한 tick(타이머 발화)에 처리할 이슈 수
+  max_retries: 3             # 분석 실패 시 재시도 한도 (초과 시 포기)
+
+github:
+  repo: Jeongho0805/practicket
+  base_branch: stage         # PR 대상 브랜치
+  assignee: Jeongho0805      # 처리 중/완료 시 assign 대상 (Sentry-native 중복관리)
+
+analysis:
+  model: claude-sonnet-4-6
+
+mail:
+  to: qkrwjdgh1721@gmail.com
+  from: qkrwjdgh1721@gmail.com
+  smtp_host: smtp.gmail.com
+  smtp_port: 465

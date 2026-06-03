@@ -1,0 +1,12 @@
+[Unit]
+Description=practicket-sentinel - Sentry 자동 원인분석 1회 실행
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=hoya
+WorkingDirectory=/home/hoya/practicket-sentinel
+EnvironmentFile=/home/hoya/practicket-sentinel/.env
+ExecStart=/home/hoya/practicket-sentinel/venv/bin/python bot/main.py
+TimeoutStartSec=1200

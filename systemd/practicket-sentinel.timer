@@ -1,0 +1,10 @@
+[Unit]
+Description=practicket-sentinel 주기 실행 (3분마다, 겹침 없음)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=3min        # 이전 실행이 끝난 뒤 3분 → 동시실행 방지
+Persistent=true
+
+[Install]
+WantedBy=timers.target
