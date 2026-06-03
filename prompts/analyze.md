@@ -26,8 +26,9 @@
   (왜 필요한지 — Sentry 이슈와 영향 포함)
 
 ## out.json 형식 (현재 디렉토리에 저장)
-{ "shortId", "summary", "root_cause", "fixable", "build_passed", "pr_url", "severity" }
+{ "shortId", "summary", "root_cause", "fix_summary", "fixable", "build_passed", "pr_url", "severity" }
 - summary: 한글 1~2문장
 - root_cause: 한글, 코드 근거 포함
+- fix_summary: 한글, 무엇을 어떻게 고쳤는지 1~2문장 (수정 안 했으면 빈 문자열)
 - severity: "high" | "medium" | "low"
 - pr_url: PR 미생성 시 null

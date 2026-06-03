@@ -34,6 +34,18 @@ def sh(args, cwd):
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def _diff(repo, max_chars=1400):
+    """HEAD 커밋의 변경 diff에서 메타 헤더를 빼고 +/- 위주로 정리."""
+    r = subprocess.run(["git", "show", "HEAD", "-U2", "--format="],
+                       cwd=repo, capture_output=True, text=True)
+    keep = []
+    for ln in r.stdout.splitlines():
+        if ln.startswith(("diff --git", "index ", "--- ", "+++ ", "new file", "deleted file")):
+            continue
+        keep.append(ln)
+    return "\n".join(keep)[:max_chars]
+
+
 def ensure_repo(cfg):
     """분석용 practicket 클론 준비 + stage 최신화."""
     repo = os.path.join(ROOT, "work")
@@ -83,6 +95,8 @@ def main():
 
             out.setdefault("count", issue.get("count"))
             out.setdefault("userCount", issue.get("userCount"))
+            if out.get("pr_url"):
+                out["diff"] = _diff(repo)
             sentry_url = issue.get("permalink", "")
             mailer.send(out, cfg, gmail_pass, sentry_url)
 

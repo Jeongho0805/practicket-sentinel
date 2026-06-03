@@ -28,6 +28,7 @@ _TPL = """
     </tr></table>
     <div style="font-size:13px;color:#333;margin:24px 0 10px;font-weight:bold;">근본 원인</div>
     <div style="font-size:13.5px;color:#444;line-height:1.7;">__CAUSE__</div>
+    __FIX__
     __BUTTONS__
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;"><tr>
       <td bgcolor="#f5f5f5" style="padding:12px 14px;border-radius:8px;font-size:12.5px;color:#555;line-height:1.8;">__ACTIONS__</td>
@@ -37,6 +38,39 @@ _TPL = """
 </table>
 </td></tr></table>
 """
+
+
+def _diff_html(diff):
+    """diff 텍스트 → +/- 색상 입힌 HTML(pre)."""
+    rows = []
+    for ln in diff.splitlines():
+        e = ln.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        if ln.startswith("+"):
+            rows.append(f'<span style="color:#22863a;">{e}</span>')
+        elif ln.startswith("-"):
+            rows.append(f'<span style="color:#b31d28;">{e}</span>')
+        elif ln.startswith("@@"):
+            rows.append(f'<span style="color:#6f42c1;">{e}</span>')
+        else:
+            rows.append(f'<span style="color:#888;">{e}</span>')
+    body = "\n".join(rows)
+    return ('<pre style="background-color:#f6f8fa;border:1px solid #e1e4e8;padding:12px 14px;'
+            'border-radius:8px;font-size:12px;line-height:1.6;overflow-x:auto;margin:8px 0 0;">'
+            f'{body}</pre>')
+
+
+def _fix_section(out):
+    if not out.get("fixable"):
+        return ""
+    summ, diff = out.get("fix_summary"), out.get("diff")
+    if not (summ or diff):
+        return ""
+    html = '<div style="font-size:13px;color:#333;margin:24px 0 10px;font-weight:bold;">적용한 수정</div>'
+    if summ:
+        html += f'<div style="font-size:13.5px;color:#444;line-height:1.7;">{summ}</div>'
+    if diff:
+        html += _diff_html(diff)
+    return html
 
 
 def _btn(href, label, color):
@@ -72,6 +106,7 @@ def _render(out, env, sentry_url):
             .replace("__USERS__", str(out.get("userCount", "?")))
             .replace("__SUMMARY__", out.get("summary", ""))
             .replace("__CAUSE__", out.get("root_cause", ""))
+            .replace("__FIX__", _fix_section(out))
             .replace("__BUTTONS__", buttons).replace("__ACTIONS__", actions))
 
 
