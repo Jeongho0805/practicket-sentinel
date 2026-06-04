@@ -95,17 +95,22 @@ def main():
 
             out.setdefault("count", issue.get("count"))
             out.setdefault("userCount", issue.get("userCount"))
-            if out.get("pr_url"):
-                out["diff"] = _diff(repo)
             sentry_url = issue.get("permalink", "")
-            mailer.send(out, cfg, gmail_pass, sentry_url)
 
-            if out.get("pr_url"):
-                sentry.comment(iid, f"🤖 자동 분석 완료 · 수정 PR: {out['pr_url']}")
-                log(f"완료: {short} → PR {out['pr_url']}")
+            if out.get("duplicate"):
+                # 같은 근본원인의 기존 PR이 있음 → 새 PR/메일 없이 코멘트만 (노이즈 방지)
+                sentry.comment(iid, f"🤖 동일 근본원인 — 기존 PR 참조: {out.get('pr_url')}")
+                log(f"중복: {short} → 기존 PR {out.get('pr_url')} (메일 생략)")
             else:
-                sentry.comment(iid, "🤖 자동 분석 완료 · 코드 자동수정 불가, 사람 확인 필요")
-                log(f"분석만 완료: {short} (PR 없음)")
+                if out.get("pr_url"):
+                    out["diff"] = _diff(repo)
+                mailer.send(out, cfg, gmail_pass, sentry_url)
+                if out.get("pr_url"):
+                    sentry.comment(iid, f"🤖 자동 분석 완료 · 수정 PR: {out['pr_url']}")
+                    log(f"완료: {short} → PR {out['pr_url']}")
+                else:
+                    sentry.comment(iid, "🤖 자동 분석 완료 · 코드 자동수정 불가, 사람 확인 필요")
+                    log(f"분석만 완료: {short} (PR 없음)")
         except Exception as e:           # noqa: BLE001
             sentry.unassign(iid)         # 다음 tick 재시도 가능하게
             state.bump(iid, now)
