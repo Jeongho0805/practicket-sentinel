@@ -2,9 +2,10 @@
 Description=practicket-sentinel 3분마다 실행
 
 [Timer]
-OnCalendar=*:0/3            # 매시 0,3,6...분 (3분마다 확실히 재예약, NEXT 항상 잡힘)
+# 매 3분(정각 0,3,6...분). 매번 재예약되어 NEXT가 항상 잡힘.
+# 실행이 3분을 넘겨도 oneshot 유닛이 active면 다음 트리거는 자동 skip(겹침 없음).
+OnCalendar=*:0/3
 Persistent=true
-# 실행이 3분을 넘겨도 oneshot 유닛이 active면 다음 트리거는 자동 skip → 겹침 없음
 
 [Install]
 WantedBy=timers.target
